@@ -68,10 +68,17 @@ export default function DemandeSection() {
     // Données pour les selects
     const etablissements = [
         "Faculté des Sciences",
-        "Faculté des Lettres",
-        "Faculté de Droit",
-        "Faculté de Médecine",
-        "Faculté d'Économie"
+        "Faculté de Médecine (FM)",
+        "Faculté d'Agronomie (FA)",
+        "Institut Universitaire de Technologie (IUT)",
+        "Faculté de Droit et de Sciences Politiques (FDSP)",
+        "Faculté de Sciences Economiques et de Gestion (FASEG)",
+        "Faculté de Lettres, Arts et Sciences Humaines (FLASH)",
+        "Institut de Formation et Soins Infirmiers et Obstétricaux (IFSIO)",
+        "Ecole Nationale de Statistique, de Planification et de Démographie (ENSPD)",
+        "Ecole Nationale des Techniciens en Santé publique et Surveillance Épidémiologique (ENATSE)",
+        "Ecole Doctorale des Sciences Agronomiques et de l'Eau (EDSAE)",
+        "Ecole Doctorale Sciences Juridiques, Politiques et Administratives (EDSJPA)"
     ];
 
     const anneesEtude = [
@@ -153,7 +160,7 @@ export default function DemandeSection() {
                         <div className="flex flex-col items-center">
                             <FileText className="w-10 h-10 text-blue-500 mb-2" />
                             <span className="text-sm font-medium text-gray-700 truncate max-w-xs">{preview}</span>
-                            <span className="text-xs text-blue-600 mt-1">Cliquer pour changer</span>
+                            <span className="text-xs text-green-600 mt-1">Cliquer pour changer</span>
                         </div>
                     ) : (
                         <div className="flex flex-col items-center">
@@ -280,16 +287,16 @@ export default function DemandeSection() {
                 <div className="flex justify-between mb-12 relative">
                     <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 -z-10"></div>
                     <div
-                        className="absolute top-1/2 left-0 h-1 bg-blue-600 -z-10 transition-all duration-300"
+                        className="absolute top-1/2 left-0 h-1 bg-green-600 -z-10 transition-all duration-300"
                         style={{ width: `${(currentStep - 1) * 33.33}%` }}
                     ></div>
 
                     {[1, 2, 3, 4].map((step) => (
                         <div key={step} className="flex flex-col items-center">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${currentStep >= step ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${currentStep >= step ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
                                 {step}
                             </div>
-                            <span className={`text-sm font-medium ${currentStep >= step ? 'text-blue-600' : 'text-gray-500'}`}>
+                            <span className={`text-sm font-medium ${currentStep >= step ? 'text-green-600' : 'text-gray-500'}`}>
                                 {step === 1 && 'Informations'}
                                 {step === 2 && 'Contact'}
                                 {step === 3 && 'Documents'}
@@ -308,7 +315,7 @@ export default function DemandeSection() {
                             className="p-8 space-y-6"
                         >
                             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                                <User className="mr-2 text-blue-500" size={20} />
+                                <User className="mr-2 text-green-500" size={20} />
                                 Informations étudiant
                             </h3>
                             <div>
@@ -318,7 +325,7 @@ export default function DemandeSection() {
                                     name="matricule"
                                     value={formData.matricule}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                     required
                                 />
                             </div>
@@ -328,10 +335,10 @@ export default function DemandeSection() {
                                     name="etablissement"
                                     value={formData.etablissement}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                     required
                                 >
-                                    <option value="">Sélectionnez votre établissement</option>
+                                    <option value="" hidden>Sélectionnez votre établissement</option>
                                     {etablissements.map((etab, index) => (
                                         <option key={index} value={etab}>{etab}</option>
                                     ))}
@@ -344,10 +351,10 @@ export default function DemandeSection() {
                                         name="anneeEtude"
                                         value={formData.anneeEtude}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                         required
                                     >
-                                        <option value="">Sélectionnez votre année</option>
+                                        <option value="" hidden>Sélectionnez votre année</option>
                                         {anneesEtude.map((annee, index) => (
                                             <option key={index} value={annee}>{annee}</option>
                                         ))}
@@ -359,10 +366,10 @@ export default function DemandeSection() {
                                         name="anneeAcademique"
                                         value={formData.anneeAcademique}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                         required
                                     >
-                                        <option value="">Sélectionnez l'année</option>
+                                        <option value="" hidden>Sélectionnez l'année</option>
                                         {anneesAcademiques.map((annee, index) => (
                                             <option key={index} value={annee}>{annee}</option>
                                         ))}
@@ -372,7 +379,7 @@ export default function DemandeSection() {
                             <div className="flex justify-end pt-4">
                                 <button
                                     onClick={nextStep}
-                                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors flex items-center"
+                                    className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors flex items-center"
                                     disabled={!formData.matricule || !formData.etablissement || !formData.anneeEtude || !formData.anneeAcademique}
                                 >
                                     Suivant <ArrowRight className="ml-2" size={18} />
@@ -389,7 +396,7 @@ export default function DemandeSection() {
                             className="p-8 space-y-6"
                         >
                             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                                <Mail className="mr-2 text-blue-500" size={20} />
+                                <Mail className="mr-2 text-green-500" size={20} />
                                 Coordonnées et type d'acte
                             </h3>
                             <div>
@@ -398,10 +405,10 @@ export default function DemandeSection() {
                                     name="acteType"
                                     value={formData.acteType}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                     required
                                 >
-                                    <option value="">Sélectionnez le type d'acte</option>
+                                    <option value="" hidden>Sélectionnez le type d'acte</option>
                                     {actesTypes.map((acte) => (
                                         <option key={acte.id} value={acte.id}>{acte.title}</option>
                                     ))}
@@ -415,7 +422,7 @@ export default function DemandeSection() {
                                         name="email"
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                         required
                                     />
                                 </div>
@@ -426,7 +433,7 @@ export default function DemandeSection() {
                                         name="telephone"
                                         value={formData.telephone}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                         required
                                     />
                                 </div>
@@ -440,7 +447,7 @@ export default function DemandeSection() {
                                 </button>
                                 <button
                                     onClick={nextStep}
-                                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors flex items-center"
+                                    className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors flex items-center"
                                     disabled={!formData.acteType || !formData.email || !formData.telephone}
                                 >
                                     Suivant <ArrowRight className="ml-2" size={18} />
@@ -457,7 +464,7 @@ export default function DemandeSection() {
                             className="p-8"
                         >
                             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                                <FileInput className="mr-2 text-blue-500" size={20} />
+                                <FileInput className="mr-2 text-green-500" size={20} />
                                 Documents à fournir
                             </h3>
                             <div className="space-y-6">
@@ -518,7 +525,7 @@ export default function DemandeSection() {
                             className="p-8 space-y-6 text-center"
                         >
                             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center justify-center">
-                                <Shield className="mr-2 text-blue-500" size={20} />
+                                <Shield className="mr-2 text-green-500" size={20} />
                                 Paiement
                             </h3>
                             {paymentStatus === 'pending' && (
@@ -529,7 +536,7 @@ export default function DemandeSection() {
                                             href={paymentUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors mb-4"
+                                            className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors mb-4"
                                         >
                                             Procéder au paiement
                                         </a>
@@ -554,7 +561,7 @@ export default function DemandeSection() {
                                     <div className="flex justify-center gap-4">
                                         <button
                                             onClick={submitForm}
-                                            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+                                            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
                                         >
                                             Réessayer le paiement
                                         </button>
@@ -591,7 +598,7 @@ export default function DemandeSection() {
                                 </p>
                                 <button
                                     onClick={() => setCurrentStep(1)}
-                                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+                                    className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
                                 >
                                     Faire une nouvelle demande
                                 </button>

@@ -9,26 +9,26 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Total des demandes</CardTitle>
+              <CardTitle>Total des demandes reçues</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">50</p>
+              <p className="text-3xl font-bold text-center">50</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Demandes validées</CardTitle>
+              <CardTitle>Total des demandes validées</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">20</p>
+              <p className="text-3xl font-bold text-center">20</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Demandes en attente</CardTitle>
+              <CardTitle>Total des demandes en attente</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">30</p>
+              <p className="text-3xl font-bold text-center">30</p>
             </CardContent>
           </Card>
         </div>

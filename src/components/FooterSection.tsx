@@ -1,14 +1,16 @@
 'use client'
 
-import { FileText, Check, Clock, Mail, Phone, BookOpen, Award, FileSignature } from 'lucide-react';
+import { FileText, Check, Clock, Mail, Phone, BookOpen, Award, FileSignature, LocateIcon } from 'lucide-react';
+import Image from 'next/image';
+import logo from '../../public/images/logoUP.jpg';
 
 export default function FooterSection() {
     // Données
   const actesTypes = [
     {
       id: 'diplome',
-      title: "Copie de diplôme",
-      description: "Obtenez une copie certifiée conforme de votre diplôme",
+      title: "Diplôme",
+      description: "Obtenez votre diplôme",
       icon: <Award className="text-blue-500" size={24} />,
       price: "3000 FCFA"
     },
@@ -54,16 +56,17 @@ export default function FooterSection() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <FileText className="text-white mr-2" size={28} />
-                <span className="text-xl font-semibold">UNIVBENIN</span>
+                {/* <FileText className="text-white mr-2" size={28} /> */}
+                <Image src={logo} className="text-white mr-2" width={50} height={50} alt="Université de Parakou" />
+                <span className="text-xl font-semibold">UNIVERSITE DE PARAKOU</span>
               </div>
-              <p className="text-gray-400">Service de documents universitaires en ligne</p>
+              <p className="text-gray-400">Plateforme de délivrance des actes académiques sécurisés en ligne</p>
             </div>
 
             <div>
               <h4 className="text-lg font-semibold mb-4">Services</h4>
               <ul className="space-y-2">
-                {actesTypes.slice(0, 3).map(acte => (
+                {actesTypes.slice(0, 5).map(acte => (
                   <li key={acte.id}>
                     <a href="#services" className="text-gray-400 hover:text-white">{acte.title}</a>
                   </li>
@@ -74,7 +77,7 @@ export default function FooterSection() {
             <div>
               <h4 className="text-lg font-semibold mb-4">Liens utiles</h4>
               <ul className="space-y-2">
-                <li><a href="#" className="text-gray-400 hover:text-white">Université</a></li>
+                <li><a href="https://www.univ-parakou.bj" target='_blank' className="text-gray-400 hover:text-white">Université</a></li>
                 <li><a href="#" className="text-gray-400 hover:text-white">Règlement</a></li>
                 <li><a href="#faq" className="text-gray-400 hover:text-white">FAQ</a></li>
                 <li><a href="#process" className="text-gray-400 hover:text-white">Procédure</a></li>
@@ -86,22 +89,26 @@ export default function FooterSection() {
               <ul className="space-y-2 text-gray-400">
                 <li className="flex items-start">
                   <Mail className="mr-2 mt-1" size={16} />
-                  <span>contact@univbenin.bj</span>
+                  <span>univ-parakou@gmail.com</span>
                 </li>
                 <li className="flex items-start">
                   <Phone className="mr-2 mt-1" size={16} />
-                  <span>+229 01 61 55 63 55</span>
+                  <span>+229 01 23 61 07 12</span>
                 </li>
                 <li className="flex items-start">
                   <Clock className="mr-2 mt-1" size={16} />
-                  <span>Lundi-Vendredi, 9h-17h</span>
+                  <span>Lundi-Vendredi : 08h-12h30 | 14h-17h30</span>
+                </li>
+                <li className="flex items-start">
+                  <LocateIcon className="mr-2 mt-1" size={16} />
+                  <span>Parakou, Quartier Arafat</span>
                 </li>
               </ul>
             </div>
           </div>
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500">
-            <p>© {new Date().getFullYear()} UNIVBENIN. Tous droits réservés.</p>
+            <p>© {new Date().getFullYear()} Université de Parakou. Tous droits réservés.</p>
           </div>
         </div>
       </footer>

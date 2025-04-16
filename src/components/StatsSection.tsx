@@ -6,13 +6,13 @@ import { Check, Clock, Shield, User } from 'lucide-react';
 
 export default function StatsSection() {
     const stats = [
-        { value: "24-48h", label: "Délai moyen", icon: <Clock className="text-blue-500" size={32} /> },
-        { value: "100%", label: "En ligne", icon: <Shield className="text-green-500" size={32} /> },
-        { value: "24/7", label: "Accessible", icon: <Check className="text-purple-500" size={32} /> },
-        { value: "5000+", label: "Étudiants", icon: <User className="text-orange-500" size={32} /> }
+        { value: "48-72h", label: "Délai moyen", icon: <Clock className="text-amber-300" size={32} /> },
+        { value: "100%", label: "En ligne", icon: <Shield className="text-green-300" size={32} /> },
+        { value: "24/7", label: "Accessible", icon: <Check className="text-yellow-300" size={32} /> },
+        { value: "5000+", label: "Étudiants", icon: <User className="text-indigo-300" size={32} /> }
       ];
     return (
-        <section className="py-16 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+        <section className="py-16 bg-gradient-to-r from-green-600 to-emerald-600 text-white">
         <div className="mx-auto px-6 max-w-6xl">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (

@@ -8,7 +8,7 @@ export default function FaqSection() {
     const faqs = [
         {
             question: "Combien de temps prend le traitement d'une demande ?",
-            answer: "La plupart des demandes sont traitées sous 24 à 48 heures. En période de forte affluence (fin d'année universitaire), cela peut prendre jusqu'à 72 heures."
+            answer: "La plupart des demandes sont traitées sous 48 à 72 heures. En période de forte affluence (fin d'année universitaire), cela peut prendre au delà 72 heures."
         },
         {
             question: "Les documents sont-ils officiels ?",
@@ -66,9 +66,9 @@ export default function FaqSection() {
 
                 <div className="mt-12 text-center">
                     <div className="inline-flex items-center px-6 py-3 bg-white border border-gray-200 rounded-full shadow-sm">
-                        <HelpCircle className="text-blue-500 mr-2" />
+                        <HelpCircle className="text-green-500 mr-2" />
                         <span className="font-medium text-gray-700">Vous avez d'autres questions ?</span>
-                        <a href="#contact" className="ml-2 text-blue-600 hover:underline">Contactez-nous</a>
+                        <a href="#contact" className="ml-2 text-green-600 hover:underline">Contactez-nous</a>
                     </div>
                 </div>
             </div>

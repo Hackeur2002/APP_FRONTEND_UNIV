@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Backoffice - Gestion des Demandes",
-  description: "Gestion des demandes de documents",
+  title: "Plateforme de délivrance des actes académiques", // Front office / Front end
+  description: "Plateforme de demande des actes académiques sécurisés à l'Université de Parakou",
 };
 
 export default function RootLayout({

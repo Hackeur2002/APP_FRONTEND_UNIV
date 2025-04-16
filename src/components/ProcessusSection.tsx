@@ -22,7 +22,7 @@ export default function ProcessusSection() {
         {
           step: 3,
           title: "Réception des documents",
-          description: "Recevez vos documents par email sous 48h maximum",
+          description: "Recevez vos documents par email",
           icon: <Mail className="text-white" size={20} />
         }
       ];
@@ -52,11 +52,11 @@ export default function ProcessusSection() {
                 viewport={{ once: true }}
                 className="relative"
               >
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold z-10 shadow-lg">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold z-10 shadow-lg">
                   {step.step}
                 </div>
                 <div className="bg-white rounded-xl p-8 pt-14 shadow-md h-full border border-gray-100">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4 mx-auto">
                     {step.icon}
                   </div>
                   <h3 className="text-xl font-bold text-center mb-2 text-gray-900">{step.title}</h3>

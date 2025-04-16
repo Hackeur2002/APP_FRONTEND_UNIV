@@ -8,45 +8,45 @@ export default function ServicesSection() {
     const actesTypes = [
         {
             id: 'diplome',
-            title: "Copie de diplôme",
-            description: "Obtenez une copie certifiée conforme de votre diplôme",
+            title: "Diplôme",
+            description: "Obtenez votre diplôme",
             icon: <Award className="text-blue-500" size={24} />,
-            price: "3000 FCFA"
+            price: "20 000 FCFA"
         },
         {
             id: 'releve',
             title: "Relevé de notes",
             description: "Demandez votre relevé de notes officiel",
             icon: <BookOpen className="text-green-500" size={24} />,
-            price: "4000 FCFA"
+            price: "5 000 FCFA"
         },
         {
             id: 'attestation',
             title: "Attestation",
             description: "Attestation de scolarité ou de réussite",
             icon: <FileSignature className="text-purple-500" size={24} />,
-            price: "5000 FCFA"
+            price: "5 000 FCFA"
         },
         {
             id: 'bulletin',
             title: "Bulletin de notes",
             description: "Bulletin semestriel détaillé",
             icon: <FileText className="text-orange-500" size={24} />,
-            price: "2500 FCFA"
+            price: "5 000 FCFA"
         },
         {
             id: 'licence',
             title: "Attestation de licence",
             description: "Document officiel de validation de licence",
             icon: <Check className="text-red-500" size={24} />,
-            price: "3000 FCFA"
+            price: "2 000 FCFA"
         },
         {
             id: 'master',
             title: "Attestation de master",
             description: "Document officiel de validation de master",
             icon: <Check className="text-indigo-500" size={24} />,
-            price: "5000 FCFA"
+            price: "5 000 FCFA"
         }
     ];
 
