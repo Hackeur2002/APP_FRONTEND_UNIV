@@ -2,7 +2,7 @@
 
 import { FileText, Check, Clock, Mail, Phone, BookOpen, Award, FileSignature, LocateIcon } from 'lucide-react';
 import Image from 'next/image';
-import logo from '../../public/images/logoUP.jpg';
+import logo from '../../public/images/up_logo.png';
 
 export default function FooterSection() {
     // Données

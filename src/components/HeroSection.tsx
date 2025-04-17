@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, ChevronRight, ArrowRight, Menu, X } from 'lucide-react';
 import Image from 'next/image';
-import logo from '../../public/images/logoUP.jpg';
+import logo1 from '../../public/images/logoUP.jpg';
+import logo from '../../public/images/up_logo.png';
 
 export default function HeroSection() {
   const [menuOpen, setMenuOpen] = useState(false);
