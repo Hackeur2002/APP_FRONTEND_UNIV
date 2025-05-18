@@ -19,6 +19,7 @@ export default function LoginPage() {
       await login(email, password);
       router.push("/admin/dashboard");
     } catch (err) {
+      console.log(err)
       setError("Email ou mot de passe incorrect");
     }
   };

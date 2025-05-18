@@ -1,17 +1,25 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { RequestTable } from "@/components/admin/RequestTable";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { api } from "@/services/api";
+import { DocumentRequest } from "@/types/index";
+
 export default function RequestsPage() {
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState<DocumentRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
     const fetchRequests = async () => {
-      const requests = await api.fetchRequests();
-      setRequests(requests);
-      setIsLoading(false);
+      try {
+        const fetchedRequests = await api.fetchRequests();
+        setRequests(fetchedRequests);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Failed to fetch requests:', error);
+        setIsLoading(false);
+      }
     };
     fetchRequests();
   }, []);
@@ -23,7 +31,7 @@ export default function RequestsPage() {
         {isLoading ? (
           <p>Chargement...</p>
         ) : (
-          <RequestTable requests={requests || []} />
+          <RequestTable requests={requests} />
         )}
       </div>
     </ProtectedRoute>

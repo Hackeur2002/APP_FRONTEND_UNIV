@@ -14,7 +14,7 @@ export function Navbar() {
 
   return (
     <nav className="bg-white shadow p-4 flex justify-between items-center">
-      <h1 className="text-xl font-bold text-green-800">Weman</h1>|<h4 className="text-green-900 font-bold">Plateforme de délivrance des actes académiques</h4>
+      <h1 className="text-xl font-bold text-green-800">Weman</h1><h4 className="text-green-900 font-bold">Plateforme de délivrance des actes académiques</h4>
       <Button className="hover:bg-red-700 text-white" onClick={handleLogout}>Déconnexion</Button>
     </nav>
   );

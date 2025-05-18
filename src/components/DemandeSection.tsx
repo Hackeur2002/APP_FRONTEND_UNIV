@@ -1,11 +1,23 @@
 'use client'
 
-import React, { useState } from "react"
-import { motion } from "framer-motion"
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { FileText, ChevronRight, ArrowRight, Menu, Upload, X, Check, Book, Calendar, Clock, FileInput, FileDigit, Shield, Mail, Phone, HelpCircle, User, BookOpen, Award, FileSignature } from 'lucide-react';
 import { api } from "@/services/api";
+import { useKKiaPay } from 'kkiapay-react';
+
+// Fonction pour obtenir le prix du document sélectionné
+const getDocumentPrice = (acteType, actesTypes) => {
+    const selectedActe = actesTypes.find((acte: { id: any; }) => acte.id === acteType);
+    if (selectedActe) {
+        // Extraire le prix numérique (supprimer " FCFA" et convertir en nombre)
+        return parseInt(selectedActe.price.replace(' FCFA', ''), 10);
+    }
+    return 0; // Prix par défaut si aucun document n'est sélectionné
+};
 
 export default function DemandeSection() {
+    const [mdocumentPrice, setDocumentPrice] = useState(0);
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState({
         matricule: '',
@@ -15,12 +27,13 @@ export default function DemandeSection() {
         acteType: '',
         email: '',
         telephone: '',
+        paymentPhone: '', // Nouveau champ pour le numéro de téléphone de paiement
         acteNaissance: null,
         carteEtudiant: null,
         fichePreinscription: null,
         diplomeBac: null,
         demandeManuscrite: null,
-        paymentMethod: 'mobile_money' // Ajout d'une méthode de paiement par défaut
+        paymentMethod: 'momo' // Méthode de paiement par défaut
     });
     const [filePreviews, setFilePreviews] = useState({
         acteNaissance: '',
@@ -32,38 +45,10 @@ export default function DemandeSection() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'failed'>('pending');
     const [trackingId, setTrackingId] = useState<string | null>(null);
-    const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
     const [paymentReference, setPaymentReference] = useState<string | null>(null);
 
-    const nextStep = () => {
-        setCurrentStep(prev => prev + 1);
-    };
-
-    const prevStep = () => {
-        setCurrentStep(prev => prev - 1);
-    };
-
-    const handleChange = (e: any) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-    const handleFileChange = (e: any, field: any) => {
-        const file = e.target.files[0];
-        if (file) {
-            setFormData(prev => ({
-                ...prev,
-                [field]: file
-            }));
-            setFilePreviews(prev => ({
-                ...prev,
-                [field]: file.name
-            }));
-        }
-    };
+    // Intégration de KKiaPay
+    const { openKkiapayWidget, addKkiapayListener, removeKkiapayListener } = useKKiaPay();
 
     // Données pour les selects
     const etablissements = [
@@ -175,99 +160,246 @@ export default function DemandeSection() {
         </div>
     );
 
-    const submitForm = async () => {
-        setIsSubmitting(true);
-        try {
-            const formDataToSend = new FormData();
-            formDataToSend.append('matricule', formData.matricule);
-            formDataToSend.append('establishment', formData.etablissement);
-            formDataToSend.append('studyYear', formData.anneeEtude);
-            formDataToSend.append('academicYear', formData.anneeAcademique);
-            formDataToSend.append('documentType', formData.acteType);
-            formDataToSend.append('studentEmail', formData.email);
-            formDataToSend.append('studentPhone', formData.telephone);
-            formDataToSend.append('paymentMethod', formData.paymentMethod);
 
-            if (formData.acteNaissance) formDataToSend.append('acteNaissance', formData.acteNaissance);
-            if (formData.carteEtudiant) formDataToSend.append('carteEtudiant', formData.carteEtudiant);
-            if (formData.fichePreinscription) formDataToSend.append('fichePreinscription', formData.fichePreinscription);
-            if (formData.diplomeBac) formDataToSend.append('diplomeBac', formData.diplomeBac);
-            if (formData.demandeManuscrite) formDataToSend.append('demandeManuscrite', formData.demandeManuscrite);
-            // console.log(formDataToSend.get('studyYear'));
-            // console.log(formDataToSend.get('carteEtudiant'));
-            // console.log(formDataToSend.get('fichePreinscription'));
-            // console.log(formDataToSend.get('diplomeBac'));
-            // console.log(formDataToSend.get('demandeManuscrite'));
-            const response = await api.submitRequest(formDataToSend);
-            if (!response.trackingId) {
-                throw new Error("Erreur lors de la création de la demande");
+    // Gestion des événements de paiement KKiaPay
+    useEffect(() => {
+        const successHandler = async (response) => {
+            console.log('Paiement réussi:', response);
+            setPaymentStatus('success');
+            setPaymentReference(response.transactionId); // Stocker la référence de la transaction
+
+            // Appeler submitForm après un paiement réussi
+            setIsSubmitting(true);
+            try {
+                const formDataToSend = new FormData();
+                formDataToSend.append('matricule', formData.matricule);
+                formDataToSend.append('establishment', formData.etablissement);
+                formDataToSend.append('studyYear', formData.anneeEtude);
+                formDataToSend.append('academicYear', formData.anneeAcademique);
+                formDataToSend.append('documentType', formData.acteType);
+                formDataToSend.append('studentEmail', formData.email);
+                formDataToSend.append('studentPhone', formData.telephone);
+                formDataToSend.append('paymentMethod', formData.paymentMethod);
+                formDataToSend.append('documentPrice', mdocumentPrice.toString());
+                formDataToSend.append('paymentReference', response.transactionId); // Ajouter la référence de paiement
+
+                if (formData.acteNaissance) formDataToSend.append('acteNaissance', formData.acteNaissance);
+                if (formData.carteEtudiant) formDataToSend.append('carteEtudiant', formData.carteEtudiant);
+                if (formData.fichePreinscription) formDataToSend.append('fichePreinscription', formData.fichePreinscription);
+                if (formData.diplomeBac) formDataToSend.append('diplomeBac', formData.diplomeBac);
+                if (formData.demandeManuscrite) formDataToSend.append('demandeManuscrite', formData.demandeManuscrite);
+
+                const submitResponse = await api.submitRequest(formDataToSend);
+                if (!submitResponse.trackingId) {
+                    throw new Error("Erreur lors de la création de la demande");
+                }
+
+                setTrackingId(submitResponse.trackingId);
+                setCurrentStep(5); // Passer à l'étape de confirmation
+            } catch (error) {
+                console.error('Erreur lors de la soumission après paiement:', error);
+                alert(error.message || "Une erreur est survenue lors de la soumission après le paiement. Veuillez contacter le support.");
+            } finally {
+                setIsSubmitting(false);
             }
+        };
 
-            setTrackingId(response.trackingId);
-            setPaymentUrl(response.paymentUrl);
-            setPaymentReference(response.payment?.reference || response.trackingId); // Ajuster selon la réponse réelle
-            setPaymentStatus(response.paymentStatus || 'pending');
-            setCurrentStep(4); // Passer à l'étape de paiement
+        const failureHandler = (error) => {
+            console.log('Paiement échoué:', error);
+            setPaymentStatus('failed');
+        };
 
-        } catch (error: unknown) {
-            console.error('Erreur lors de la soumission:', error);
-            if (error instanceof Error) {
-                alert(error.message || "Une erreur est survenue lors de la soumission");
-            } else {
-                alert("Une erreur est survenue lors de la soumission");
-            }
-            setIsSubmitting(false);
+        addKkiapayListener('success', successHandler);
+        addKkiapayListener('failed', failureHandler);
+
+        // Nettoyage des écouteurs
+        return () => {
+            removeKkiapayListener('success', successHandler);
+            removeKkiapayListener('failed', failureHandler);
+        };
+    }, [addKkiapayListener, removeKkiapayListener, formData]);
+
+    const nextStep = () => {
+        setCurrentStep(prev => prev + 1);
+    };
+
+    const prevStep = () => {
+        setCurrentStep(prev => prev - 1);
+    };
+
+    const handleChange = (e: any) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleFileChange = (e: any, field: any) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFormData(prev => ({
+                ...prev,
+                [field]: file
+            }));
+            setFilePreviews(prev => ({
+                ...prev,
+                [field]: file.name
+            }));
         }
     };
 
-    // const verifyPayment = async () => {
-    //     if (!paymentReference) return;
+    // const submitForm = async () => {
+    //     setIsSubmitting(true);
     //     try {
-    //         setIsSubmitting(true);
-    //         const paymentResponse = await api.simulatePayment(paymentReference);
-    //         if (paymentResponse.status === 'completed') {
-    //             setPaymentStatus('success');
-    //             setCurrentStep(5); // Passer à l'étape de confirmation
-    //         } else if (paymentResponse.status === 'failed') {
-    //             setPaymentStatus('failed');
+    //         const formDataToSend = new FormData();
+    //         formDataToSend.append('matricule', formData.matricule);
+    //         formDataToSend.append('establishment', formData.etablissement);
+    //         formDataToSend.append('studyYear', formData.anneeEtude);
+    //         formDataToSend.append('academicYear', formData.anneeAcademique);
+    //         formDataToSend.append('documentType', formData.acteType);
+    //         formDataToSend.append('studentEmail', formData.email);
+    //         formDataToSend.append('studentPhone', formData.telephone);
+    //         formDataToSend.append('paymentMethod', formData.paymentMethod);
+
+    //         if (formData.acteNaissance) formDataToSend.append('acteNaissance', formData.acteNaissance);
+    //         if (formData.carteEtudiant) formDataToSend.append('carteEtudiant', formData.carteEtudiant);
+    //         if (formData.fichePreinscription) formDataToSend.append('fichePreinscription', formData.fichePreinscription);
+    //         if (formData.diplomeBac) formDataToSend.append('diplomeBac', formData.diplomeBac);
+    //         if (formData.demandeManuscrite) formDataToSend.append('demandeManuscrite', formData.demandeManuscrite);
+
+    //         const response = await api.submitRequest(formDataToSend);
+    //         if (!response.trackingId) {
+    //             throw new Error("Erreur lors de la création de la demande");
     //         }
+
+    //         setTrackingId(response.trackingId);
+    //         setPaymentReference(response.trackingId); // Utiliser trackingId comme référence temporaire
+    //         setPaymentStatus('pending');
+    //         setCurrentStep(4); // Passer à l'étape de paiement
+
     //     } catch (error) {
-    //         console.error('Erreur lors de la vérification du paiement:', error);
-    //         setPaymentStatus('failed');
-    //     } finally {
+    //         console.error('Erreur lors de la soumission:', error);
+    //         alert(error.message || "Une erreur est survenue lors de la soumission");
     //         setIsSubmitting(false);
     //     }
     // };
 
-    const verifyPayment = async () => {
-        if (!paymentReference) return;
-        try {
-            setIsSubmitting(true);
-            const paymentResponse = await api.simulatePayment(paymentReference);
-            if (paymentResponse.status === 'approved') {
-                setPaymentStatus('success');
-                setCurrentStep(5);
-            } else if (paymentResponse.status === 'canceled' || paymentResponse.status === 'declined') {
-                setPaymentStatus('failed');
-            }
-        } catch (error) {
-            console.error('Erreur lors de la vérification du paiement:', error);
-            setPaymentStatus('failed');
-        } finally {
-            setIsSubmitting(false);
+    // Fonction pour ouvrir le widget KKiaPay
+    const handleOpenKkiapay = () => {
+        const amount = getDocumentPrice(formData.acteType, actesTypes); // Obtenir le prix du document
+        setDocumentPrice(amount)
+        if (!formData.paymentPhone || !amount) {
+            alert("Veuillez saisir un numéro de téléphone valide et vous assurer qu'un type d'acte est sélectionné.");
+            return;
         }
+
+        setIsSubmitting(true);
+        openKkiapayWidget({
+            amount: amount, // Montant en FCFA
+            api_key: process.env.NEXT_PUBLIC_KKIAPAY_API_KEY || "xxxxxxxxxxxxxxxxxx", // Clé API depuis les variables d'environnement
+            sandbox: true, // Mode sandbox pour les tests
+            email: formData.email,
+            phone: formData.paymentPhone, // Numéro de téléphone pour le paiement
+            // paymentmethod: [formData.paymentMethod]
+        });
+        setIsSubmitting(false);
     };
 
-    // Vérification automatique après retour du paiement
-    React.useEffect(() => {
-        if (currentStep === 4 && paymentReference && paymentStatus === 'pending') {
-            const interval = setInterval(() => {
-                verifyPayment();
-            }, 5000); // Vérifie toutes les 5 secondes
-            return () => clearInterval(interval);
-        }
-    }, [currentStep, paymentReference, paymentStatus]);
+    // Étape 4: Paiement (remplacée)
+    const renderPaymentStep = () => (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="p-8 space-y-6 text-center"
+        >
+            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center justify-center">
+                <Shield className="mr-2 text-green-500" size={20} />
+                Paiement
+            </h3>
+            {paymentStatus === 'pending' && (
+                <div className="py-8">
+                    <p className="text-gray-600 mb-4">Veuillez saisir le numéro de téléphone pour effectuer le paiement.</p>
+                    <div className="max-w-md mx-auto mb-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Numéro de téléphone (Paiement)</label>
+                        <input
+                            type="tel"
+                            name="paymentPhone"
+                            value={formData.paymentPhone}
+                            onChange={handleChange}
+                            placeholder="Ex: 97000000"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            required
+                        />
+                    </div>
+                    <button
+                        onClick={handleOpenKkiapay}
+                        className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors flex items-center mx-auto"
+                        disabled={isSubmitting || !formData.paymentPhone}
+                    >
+                        {isSubmitting ? 'Traitement...' : 'Payer maintenant'} <ArrowRight className="ml-2" size={18} />
+                    </button>
+                    <p className="text-sm text-gray-500 mt-4">Vous serez redirigé vers KKiaPay pour finaliser le paiement.</p>
+                </div>
+            )}
+            {paymentStatus === 'failed' && (
+                <div className="py-8">
+                    <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                        <X className="h-8 w-8 text-red-600" />
+                    </div>
+                    <h4 className="text-lg font-bold text-gray-900 mb-2">Paiement échoué</h4>
+                    <p className="text-gray-600 mb-6">Une erreur est survenue lors du traitement de votre paiement.</p>
+                    <div className="flex justify-center gap-4">
+                        <button
+                            onClick={handleOpenKkiapay}
+                            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
+                            disabled={!formData.paymentPhone}
+                        >
+                            Réessayer le paiement
+                        </button>
+                        <button
+                            onClick={prevStep}
+                            className="px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                            Retour
+                        </button>
+                    </div>
+                </div>
+            )}
+        </motion.div>
+    );
 
+    // Étape 5: Confirmation (inchangée, mais incluse pour référence)
+    const renderConfirmationStep = () => (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="p-8 space-y-6 text-center"
+        >
+            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center justify-center">
+                <Check className="mr-2 text-green-500" size={20} />
+                Confirmation
+            </h3>
+            <div className="py-8">
+                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                    <Check className="h-8 w-8 text-green-600" />
+                </div>
+                <h4 className="text-lg font-bold text-gray-900 mb-2">Demande confirmée!</h4>
+                <p className="text-gray-600 mb-6">
+                    Votre demande a été enregistrée sous le numéro: <strong>{trackingId}</strong>
+                </p>
+                <button
+                    onClick={() => setCurrentStep(1)}
+                    className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
+                >
+                    Faire une nouvelle demande
+                </button>
+            </div>
+        </motion.div>
+    );
+
+    // Le reste du code reste inchangé (étapes 1, 2, 3, etc.)
+    // Intégration dans le rendu principal
     return (
         <section id="demande" className="py-20 px-6 bg-white">
             <div className="container mx-auto max-w-4xl">
@@ -307,8 +439,8 @@ export default function DemandeSection() {
                 </div>
 
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
-                    {/* Étape 1: Informations étudiant */}
                     {currentStep === 1 && (
+                        // Étape 1: Informations étudiant (inchangée)
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -387,9 +519,8 @@ export default function DemandeSection() {
                             </div>
                         </motion.div>
                     )}
-
-                    {/* Étape 2: Contact et type d'acte */}
                     {currentStep === 2 && (
+                        // Étape 2: Contact et type d'acte (inchangée)
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -455,9 +586,8 @@ export default function DemandeSection() {
                             </div>
                         </motion.div>
                     )}
-
-                    {/* Étape 3: Documents à fournir */}
                     {currentStep === 3 && (
+                        // Étape 3: Documents (inchangée)
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -507,106 +637,20 @@ export default function DemandeSection() {
                                     Retour
                                 </button>
                                 <button
-                                    onClick={submitForm}
+                                    onClick={nextStep}
                                     className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors flex items-center"
-                                    disabled={isSubmitting || !formData.acteNaissance || !formData.carteEtudiant || !formData.fichePreinscription || !formData.diplomeBac || !formData.demandeManuscrite}
+                                    disabled={!formData.acteType || !formData.email || !formData.telephone}
                                 >
-                                    {isSubmitting ? 'Envoi...' : 'Soumettre'} <Check className="ml-2" size={18} />
+                                    Suivant <ArrowRight className="ml-2" size={18} />
                                 </button>
+                                
                             </div>
                         </motion.div>
                     )}
-
-                    {/* Étape 4: Paiement */}
-                    {currentStep === 4 && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="p-8 space-y-6 text-center"
-                        >
-                            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center justify-center">
-                                <Shield className="mr-2 text-green-500" size={20} />
-                                Paiement
-                            </h3>
-                            {paymentStatus === 'pending' && (
-                                <div className="py-8">
-                                    <p className="text-gray-600 mb-4">Finalisez votre paiement pour confirmer la demande.</p>
-                                    {paymentUrl && (
-                                        <a
-                                            href={paymentUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors mb-4"
-                                        >
-                                            Procéder au paiement
-                                        </a>
-                                    )}
-                                    <button
-                                        onClick={verifyPayment}
-                                        className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors flex items-center mx-auto"
-                                        disabled={isSubmitting}
-                                    >
-                                        {isSubmitting ? 'Vérification...' : 'Vérifier le paiement'} <Check className="ml-2" size={18} />
-                                    </button>
-                                    <p className="text-sm text-gray-500 mt-4">Cliquez sur "Vérifier le paiement" après avoir effectué le paiement.</p>
-                                </div>
-                            )}
-                            {paymentStatus === 'failed' && (
-                                <div className="py-8">
-                                    <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
-                                        <X className="h-8 w-8 text-red-600" />
-                                    </div>
-                                    <h4 className="text-lg font-bold text-gray-900 mb-2">Paiement échoué</h4>
-                                    <p className="text-gray-600 mb-6">Une erreur est survenue lors du traitement de votre paiement.</p>
-                                    <div className="flex justify-center gap-4">
-                                        <button
-                                            onClick={submitForm}
-                                            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
-                                        >
-                                            Réessayer le paiement
-                                        </button>
-                                        <button
-                                            onClick={prevStep}
-                                            className="px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-                                        >
-                                            Retour
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </motion.div>
-                    )}
-
-                    {/* Étape 5: Confirmation */}
-                    {currentStep === 5 && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="p-8 space-y-6 text-center"
-                        >
-                            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center justify-center">
-                                <Check className="mr-2 text-green-500" size={20} />
-                                Confirmation
-                            </h3>
-                            <div className="py-8">
-                                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-                                    <Check className="h-8 w-8 text-green-600" />
-                                </div>
-                                <h4 className="text-lg font-bold text-gray-900 mb-2">Demande confirmée!</h4>
-                                <p className="text-gray-600 mb-6">
-                                    Votre demande a été enregistrée sous le numéro: <strong>{trackingId}</strong>
-                                </p>
-                                <button
-                                    onClick={() => setCurrentStep(1)}
-                                    className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
-                                >
-                                    Faire une nouvelle demande
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
+                    {currentStep === 4 && renderPaymentStep()}
+                    {currentStep === 5 && renderConfirmationStep()}
                 </div>
             </div>
         </section>
-    )
+    );
 }

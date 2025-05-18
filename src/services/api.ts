@@ -1,16 +1,12 @@
-// src/services/api.ts
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3333/api/v1';
-const API_BASE_URL2 = 'http://localhost:3333/api/v1/staff';
-
 const instance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   withCredentials: true,
 });
 
 const instance2 = axios.create({
-  baseURL: API_BASE_URL2,
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL2,
   withCredentials: true,
 });
 
@@ -33,6 +29,44 @@ export const api = {
   async checkRequestStatus(trackingId: string) {
     const response = await instance.get(`/requests/${trackingId}`);
     return response.data;
-  }
-};
+  },
 
+  async validateRequest(requestId: number, approved: boolean, comments: string) {
+    try {
+      const response = await instance2.post(`/requests/validate/${requestId}`, {
+        approved,
+        comments,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error validating request:', error);
+      throw error;
+    }
+  },
+
+  async fetchRequestById(trackingId: number) {
+    try {
+      const response = await instance2.get(`/requests/${trackingId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching request by ID:', error);
+      throw error;
+    }
+  },
+
+  async generateDocument(requestId: number, signature?: File) {
+    try {
+      const formData = new FormData();
+      if (signature) {
+        formData.append('signature', signature);
+      }
+      const response = await instance2.post(`/requests/${requestId}/generate`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error generating document:', error);
+      throw error;
+    }
+  },
+};
